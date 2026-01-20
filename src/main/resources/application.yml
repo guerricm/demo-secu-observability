@@ -1,0 +1,54 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: demo
+  security:
+    user:
+      name: demo
+      password: demo
+management:
+  server:
+    port: 8089
+  opentelemetry:
+    resource-attributes:
+      '[service.instance.id]': ${spring.application.name}:${server.port}:${spring.application.instance_id:${random.value}}
+      '[service.version]': ${build.version}
+      '[service.namespace]': 'hisaas'
+      '[deployment.environment]': dev
+    tracing:
+      export:
+        otlp:
+          endpoint: http://localhost:4318/v1/traces
+          timeout: 30s
+    logging:
+      export:
+        otlp:
+          endpoint: http://localhost:4318/v1/logs
+          timeout: 30s
+  logging:
+    export:
+      enabled: true
+      otlp:
+        enabled: true
+  tracing:
+    export:
+      enabled: true
+      otlp:
+        enabled: true
+    sampling:
+      probability: 1.0
+    propagation:
+      type:
+      - b3
+      - w3c
+  otlp:
+    metrics:
+      export:
+        enabled: true
+        url: http://localhost:4318/v1/metrics
+        step: 30s
+        batch-size: 100
+logging:
+  level:
+    root: info
