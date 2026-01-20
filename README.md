@@ -1,5 +1,5 @@
 
-## 🐛 Tracing issue with Spring Boot management server on a different port
+## 🐛 Incorrect Spring Security spans for Actuator endpoints on management.server.port break tracing (Spring MVC)
 
 ### Context
 
