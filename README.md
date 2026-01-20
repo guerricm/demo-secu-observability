@@ -32,6 +32,8 @@ Select **Tempo** as the data source.
 
 #### 3. Call a regular application endpoint
 
+use the basic-auth: `demo/demo` 
+
 ```
 http://localhost:8080/demo/1
 ```
@@ -52,6 +54,8 @@ management:
 ---
 
 #### 5. Call the actuator endpoint
+
+use the basic-auth: `demo/demo` 
 
 ```
 http://localhost:8089/actuator
@@ -75,6 +79,8 @@ The trace is **not correctly reported** in Tempo.
 ```
 
 #### Call actuator on main port
+
+use the basic-auth: `demo/demo` 
 
 ```
 http://localhost:8080/actuator
