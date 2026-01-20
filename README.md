@@ -1,11 +1,13 @@
 
-## 🐛 Incorrect Spring Security spans for Actuator endpoints on management.server.port break tracing (Spring MVC)
+## ✅ Spring WebFlux – Correct Spring Security spans for Actuator endpoints on `management.server.port`
 
 ### Context
 
-I’m using **Grafana OTEL LGTM** with **Tempo** to collect and visualize traces from a Spring Boot application.
+This project demonstrates a **working setup with Spring WebFlux** where **Spring Security spans and OpenTelemetry traces are correctly created**, including for Actuator endpoints exposed on a **dedicated management port**.
 
-When the Spring Boot **management server runs on a different port**, traces for `/actuator` endpoints are **not correctly reported** in Tempo.
+It is intended as a **reference / comparison project** for a tracing issue observed with **Spring MVC (`spring-web`)**, which does **not** occur with Spring WebFlux.
+
+The application uses **Grafana OTEL LGTM** with **Tempo** to collect and visualize traces.
 
 ---
 
@@ -20,6 +22,8 @@ docker run -d --name otel-lgtm \
   grafana/otel-lgtm:latest
 ```
 
+---
+
 #### 2. Open Grafana Tempo
 
 ```
@@ -32,7 +36,7 @@ Select **Tempo** as the data source.
 
 #### 3. Call a regular application endpoint
 
-use the basic-auth: `demo/demo` 
+Use basic authentication: `demo / demo`
 
 ```
 http://localhost:8080/demo/1
@@ -53,18 +57,17 @@ management:
 
 ---
 
-#### 5. Call the actuator endpoint
+#### 5. Call the actuator endpoint on the management port
 
-use the basic-auth: `demo/demo` 
+Use basic authentication: `demo / demo`
 
 ```
 http://localhost:8089/actuator
 ```
 
-❌ **Result**
-The trace is **not correctly reported** in Tempo.
+✅ **Result**
+The trace is **correctly created and visible** in Tempo.
 
-<img src="img/tempo-1.jpg" width="50%"/>
 
 ---
 
@@ -78,41 +81,47 @@ The trace is **not correctly reported** in Tempo.
 #     port: 8089
 ```
 
-#### Call actuator on main port
+#### Call actuator on the main port
 
-use the basic-auth: `demo/demo` 
+Use basic authentication: `demo / demo`
 
 ```
 http://localhost:8080/actuator
 ```
 
 ✅ **Result**
-The trace is now **correctly reported** in Tempo.
+The trace is also correctly created and visible in Tempo.
 
-<img src="img/tempo-2.jpg" width="50%"/>
 
----
-
-### ❓ Expected behavior
-
-Traces for `/actuator` endpoints should be collected **even when `management.server.port` is different from `server.port`**, just like regular application endpoints.
 
 ---
 
-### 📌 Actual behavior
+### ✅ Observed behavior
 
-When `management.server.port` is set:
+With **Spring WebFlux**:
 
 * Application endpoints are traced correctly
-* Actuator endpoints are **missing or incomplete** in Tempo
+* Actuator endpoints are traced correctly
+* Tracing works **with or without** `management.server.port`
+* Spring Security spans are **consistent and properly parented**
+* No broken or orphan spans observed in Tempo
+
+---
+
+### 🎯 Purpose of this project
+
+This project serves as:
+
+* A **working reference** for Spring Security + Micrometer + OpenTelemetry
+* A **comparison baseline** against Spring MVC, where tracing breaks when using a dedicated management port
+* Evidence that the issue is **not related to OTEL, Tempo, or configuration**, but is **specific to Spring MVC**
 
 ---
 
 ### 🧠 Additional notes
 
-* OTEL exporter is configured and working (confirmed via regular endpoints)
-* Issue only appears when using a **separate management server port**
-* No issue when actuator runs on the main HTTP port
-* No issue when using **spring-webflux** 
-
+* OTEL exporter is correctly configured and functional
+* Spring Security spans behave as expected
+* No custom filters or manual instrumentation
+* Issue does **not** reproduce with `spring-webflux`
 
