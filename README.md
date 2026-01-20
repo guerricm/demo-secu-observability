@@ -1,0 +1,1 @@
+docker run -d --name otel-lgtm -p 3000:3000 -p 4318:4318 grafana/otel-lgtm:latest
